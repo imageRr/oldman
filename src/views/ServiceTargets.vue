@@ -3,7 +3,7 @@
     <!-- 左侧导航栏 -->
     <aside class="sidebar">
       <div class="logo-container">
-        <h2 class="system-title">颐养管理系统</h2>
+        <h2 class="system-title">颐养管理系统123</h2>
       </div>
 
       <nav class="nav-menu">

@@ -5,6 +5,8 @@ import Bedlayout from '@/components/bedlayout.vue'
 import Bedmanagement from '@/components/bedmanagement.vue'
 import customerlist from '@/components/customerlist.vue'
 import CheckInDialog from '@/components/CheckInDialog.vue'
+import GoRegi from '@/components/GoRegi.vue'
+import Checkout from '@/components/Checkout.vue'
 
 const routes = [
   {
@@ -18,7 +20,7 @@ const routes = [
     component: shouye,
     children: [
       {
-        path: 'bedlayout',        // 注意：不要写 /bedlayout，子路由用相对路径
+        path: 'bedlayout',        
         name: 'bedlayout',
         component: Bedlayout
       },
@@ -33,16 +35,26 @@ const routes = [
         component: customerlist
       },
       {
-        path: 'checkin',
+        path: 'CheckInDialog',
         name: 'CheckInDialog',
         component: CheckInDialog
+      },
+      {
+        path: 'goregi',
+        name: 'goregi',
+        component: GoRegi
+      },
+      {
+        path: 'checkout',
+        name: 'checkout',
+        component: Checkout
       }
     ]
   }
 ]
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),  // 统一用 History 模式
+  history: createWebHistory(import.meta.env.BASE_URL),  
   routes
 })
 

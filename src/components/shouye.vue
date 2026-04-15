@@ -36,8 +36,8 @@
             <!-- 原有子项 -->
             <li><router-link to="/customerlist">客户信息列表</router-link></li>
             <li><router-link to="/CheckInDialog">入住登记</router-link></li>
-            <li><router-link to="/check-out">外出登记</router-link></li>
-            <li><router-link to="/return-check">退住登记</router-link></li>
+            <li><router-link to="/goregi">外出登记</router-link></li>
+            <li><router-link to="/checkout">退住登记</router-link></li>
           </ul>
         </transition>
       </li>

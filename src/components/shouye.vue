@@ -106,6 +106,7 @@
         <div class="empty-content">
           <h3>欢迎使用东软颐养中心管理系统</h3>
           <p>请点击左侧菜单展开子项，并点击具体功能进入页面。</p >
+            <router-view />
         </div>
       </div>
     </main>

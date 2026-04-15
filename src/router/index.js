@@ -22,7 +22,7 @@ const router = createRouter({
 // 写登录页的路由守卫
 router.beforeEach((to, from, next) => {
 
-  // 公开页面（不需要登录就能访问，也就是登录页）
+  // 允许访问的公开的页面（不需要登录就能访问，也就是登录页）
   const publicPages = ['/login']
   const authRequired = !publicPages.includes(to.path)
   
@@ -38,6 +38,7 @@ router.beforeEach((to, from, next) => {
   } else {
     next()
   }
+  
 })
 
 export default router

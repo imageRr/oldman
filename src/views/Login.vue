@@ -22,7 +22,7 @@
 
                     <div class="passlabel">Password</div>
                     <el-input v-model="passput" style="height:40px" type="password" 
-                        placeholder="请输入密码,密码为8-16位的数字组合"
+                        placeholder="请输入密码,密码为8-16位的数字和字母组合"
                         @input="handlePasswordInput" maxlength="16" show-password>
                         <template #password-icon="{ visible }">
                             <el-icon :size="16">
@@ -60,6 +60,8 @@ const passput = ref('')
 const loginImageUrl = ref(loginImg)
 const checked1 = ref(false)
 const router = useRouter()
+
+
 
 // 创建管理员账号，只能用这三个登录
 const adminUsers = [
@@ -120,7 +122,7 @@ const validateLogin = () => {
 const handleLogin = () => {
     if (!validateLogin()) return
 
-    // 存储登录状态和登录编码
+    // 暂时用浏览器的缓存存储登录状态和登录编码
     localStorage.setItem('isLoggedIn', 'true')
     localStorage.setItem('loginCode', input.value)
 
@@ -158,7 +160,22 @@ const handleLogin = () => {
     box-sizing: border-box;
     display: flex;
     overflow: hidden;
+    /* 动画属性，fadeInUp 自定义名称 持续时间 速度曲线 */
+    animation: fadeInUp 0.6s ease-out;  
 }
+
+/* ketframes 动画关键帧 opacity 透明度 一开始是0后来变为一，模拟淡入的效果，transform，移动*/
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 
 /* 卡片的左边放图片的区域 */
 .left {

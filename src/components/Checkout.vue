@@ -1,58 +1,34 @@
 <template>
-  <!--最外层容器，虽然可能没用但是如果写样式肯定有用-->
+  <!--最外层容器-->
   <div class="out">
     <el-card class="box-card">
       
-      <!--中间可以看作是一个大的卡片，这里是设计一个好看一些的卡片的头部，底下加个分割线和表格部分分割出去-->
+      <!--卡片头部-->
       <template #header>
         <div class="card-header">
           <span>📋 退住登记</span>
-          <!-- 标签，放在右边，好看 -->
+          <!-- 标签，放在右边 -->
           <el-tag type="info" effect="plain">申请退住 & 审批管理</el-tag>
         </div>
       </template>
 
-      <!-- 这里放的是查询的输入框和查询按钮，按钮一会加个click事件，用css让他们俩中间有间隙-->
+      <!-- 查询区域 -->
       <div class="searchout">
         <div class="searchform">
           <el-input 
+            v-model="searchName"
             placeholder="客户姓名" 
             clearable
             style="width: 200px"
           />
-          <el-button type="primary">查询</el-button>
+          <el-button type="primary" @click="handleSearch">查询</el-button>
         </div>
       </div>
 
-      <!--这就是总体的一个大的表格区域了-->
-      <div class="cts">
-        <h4 class="ctstitle">🏠 当前入住客户</h4>
-        <el-table :data="[]" border>
-
-            <!-- 表格的各列的列表项，这个表格链接的是客户信息 -->
-          <el-table-column prop="name" label="姓名" />
-
-          <el-table-column prop="age" label="年龄" />
-
-          <el-table-column prop="gender" label="性别" />
-
-          <el-table-column prop="bedNo" label="床号" />
-    
-          <el-table-column prop="careLevel" label="护理级别" />
-          
-
-          <el-table-column label="操作" fixed="right" width="120">
-            <template #default>
-              <el-button type="primary" size="small">申请退住</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-
-      <!--下面的退住申请的表格-->
+      <!-- 退住申请记录表格 -->
       <div class="application-table-section">
         <h4 class="section-title">📋 退住申请记录</h4>
-        <el-table :data="[]" border>
+        <el-table :data="searchResult" border>
           
           <el-table-column prop="customerName" label="客户姓名" />
           
@@ -67,19 +43,23 @@
           <el-table-column prop="approvalDate" label="审批时间" />
           
           <el-table-column label="审批状态">
-            <template #default>
-              <el-tag type="warning">待审批</el-tag>
+            <template #default="{ row }">
+              <el-tag v-if="row.status === 'pending'" type="warning">待审批</el-tag>
+              <el-tag v-else-if="row.status === 'approved'" type="success">已通过</el-tag>
+              <el-tag v-else-if="row.status === 'rejected'" type="danger">不通过</el-tag>
             </template>
           </el-table-column>
 
           <el-table-column prop="bedNo" label="床位" />
 
-
           <!-- 操作按钮 -->
           <el-table-column label="操作" fixed="right" width="150">
-            <template #default>
-              <el-button type="success" size="small" plain>通过</el-button>
-              <el-button type="danger" size="small" plain>驳回</el-button>
+            <template #default="{ row }">
+              <template v-if="row.status === 'pending'">
+                <el-button type="success" size="small" plain @click="approve(row.id)">通过</el-button>
+                <el-button type="danger" size="small" plain @click="reject(row.id)">驳回</el-button>
+              </template>
+              <span v-else style="color: #909399;">已处理</span>
             </template>
           </el-table-column>
         </el-table>
@@ -98,7 +78,79 @@
 </template>
 
 <script setup>
-    import {ref,reactive} from 'vue'
+import { ref, computed } from 'vue'
+
+// 搜索关键词
+const searchName = ref('')
+
+// 搜索结果（根据搜索关键词筛选）
+const searchResult = computed(() => {
+  if (!searchName.value) {
+    return checkoutApplications.value
+  }
+  return checkoutApplications.value.filter(item => 
+    item.customerName.includes(searchName.value)
+  )
+})
+
+// 查询方法
+const handleSearch = () => {
+  // 计算属性会自动响应 searchName 的变化
+  console.log('查询:', searchName.value)
+}
+
+// 通过审批
+const approve = (id) => {
+  const item = checkoutApplications.value.find(item => item.id === id)
+  if (item && item.status === 'pending') {
+    item.status = 'approved'
+  }
+}
+
+// 驳回审批
+const reject = (id) => {
+  const item = checkoutApplications.value.find(item => item.id === id)
+  if (item && item.status === 'pending') {
+    item.status = 'rejected'
+  }
+}
+
+// 预设的退住申请记录数据
+const checkoutApplications = ref([
+  {
+    id: 1,
+    customerName: '孙瑞英',
+    checkInDate: '2023-11-10',
+    checkOutDate: '2023-11-15',
+    checkOutType: '正常退住',
+    reason: '家国有安排',
+    approvalDate: '2023-12-30',
+    bedNo: '1201-1',
+    status: 'approved'
+  },
+  {
+    id: 2,
+    customerName: '孙瑞英',
+    checkInDate: '2023-11-10',
+    checkOutDate: '2023-11-20',
+    checkOutType: '保留床位',
+    reason: '回家看看',
+    approvalDate: '2023-12-30',
+    bedNo: '1201-1',
+    status: 'rejected'
+  },
+  {
+    id: 3,
+    customerName: '孙瑞英',
+    checkInDate: '2023-11-10',
+    checkOutDate: '2023-12-30',
+    checkOutType: '死亡退住',
+    reason: '因病去世',
+    approvalDate: '2023-12-30',
+    bedNo: '1201-1',
+    status: 'pending'
+  }
+])
 </script>
 
 <style scoped>
@@ -117,7 +169,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-/* ========== 1. 卡片头部 ========== */
+/* 卡片头*/
 .card-header {
   display: flex;
   justify-content: space-between;
@@ -128,10 +180,10 @@
 
 /* 解决标题和标签距离太近的问题 */
 .card-header span {
-  margin-right: 20px;  /* 让标题和标签之间有空隙 */
+  margin-right: 20px;
 }
 
-/* ========== 2. 查询区域 ========== */
+/* 查询的输入框和按钮 */
 .searchout {
   margin-bottom: 20px;
 }
@@ -139,37 +191,32 @@
 .searchform {
   display: flex;
   align-items: center;
-  gap: 12px;  /* 输入框和按钮之间的空隙 */
+  gap: 12px;
 }
 
-/* ========== 3. 表格标题通用样式 ========== */
-.ctstitle {
+/* 表格标题 */
+.section-title {
   margin: 16px 0 12px 0;
   padding-left: 10px;
   border-left: 4px solid #409EFF;
   color: #303133;
   font-size: 16px;
-  font-weight: 500;
+  font-weight: bold;
 }
 
-/* 第一个表格上方的标题（距离查询区域近一点，可以不加额外 margin-top） */
-.cts .ctstitle {
-  margin-top: 0;
-}
-
-/* ========== 4. 申请记录表格区域 ========== */
+/* 退住申请记录的表格 */
 .application-table-section {
-  margin-top: 30px;  /* 与上一个表格保持 30px 距离 */
+  margin-top: 30px;
 }
 
-/* ========== 5. 分页组件 ========== */
+/* 分页组件 */
 .pagination-wrapper {
-  margin-top: 30px;  /* 距离表格 30px 空隙 */
+  margin-top: 30px;
   display: flex;
   justify-content: flex-end;
 }
 
-/* ========== 6. 表格内部样式优化（可选） ========== */
+/* 表格内部样式优化 */
 .el-table {
   border-radius: 4px;
   overflow: hidden;

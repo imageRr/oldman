@@ -15,14 +15,14 @@
                 <div class="right-content">
                     <div class="signt">Sign In</div>
 
-                    <div class="label">Tel</div>
+                    <div class="label">Username</div>
                     <!-- 登录编码设置最多八位 -->
                     <el-input v-model="input" style="height:40px" placeholder="请输入登录编码" @input="handlePhoneInput"
                         maxlength="8" />
 
                     <div class="passlabel">Password</div>
                     <el-input v-model="passput" style="height:40px" type="password" 
-                        placeholder="请输入密码,密码为8-16位的数字组合"
+                        placeholder="请输入密码,最多16位"
                         @input="handlePasswordInput" maxlength="16" show-password>
                         <template #password-icon="{ visible }">
                             <el-icon :size="16">
@@ -36,20 +36,18 @@
 
                     <p class="forgetpass" @click="showForgpassMsg">忘记密码</p>
 
-                    <el-button type="primary" color="#7c3aed" class="login-btn" :disabled="!checked1" @click="handleLogin">Sign
-                        in</el-button>
-                    <el-button type="primary" color="#7c3aed" class="crea-btn" @click="showCreateAccountMsg">create an
-                        account</el-button>
+                    <el-button type="primary" color="#7c3aed" class="login-btn" :disabled="!checked1" @click="handleAdminLogin">管理员登录
+                        </el-button>
+                    <el-button type="primary" color="#7c3aed" class="crea-btn" :disabled="!checked1" @click="handleWorkerLogin">健康管家（护工）登录
+                        </el-button>
                 </div>
             </div>
         </div>
     </div>
 </template>
 
-
-
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import loginImg from '@/assets/Login.svg'
 import { Lock, Unlock } from '@element-plus/icons-vue'
@@ -61,21 +59,23 @@ const loginImageUrl = ref(loginImg)
 const checked1 = ref(false)
 const router = useRouter()
 
-// 创建管理员账号，只能用这三个登录
+// 管理员账号
 const adminUsers = [
-    { loginCode: 'admin', password: 'admin000' },      
-    { loginCode: 'admin1', password: 'admin111' },
-    { loginCode: 'admin2', password: 'admin222' }
+    { loginCode: 'admin', password: 'admin' },      
+    { loginCode: 'admin1', password: 'admin1' },
+    { loginCode: 'admin2', password: 'admin2' }
 ]
 
-// 验证账号密码
-const checkUser = (loginCode, password) => {
-    return adminUsers.find(user => user.loginCode === loginCode && user.password === password)
-}
+// 护工账号（复用相同的账号体系，但角色不同）
+const workerUsers = [
+    { loginCode: 'admin', password: 'admin' },      
+    { loginCode: 'admin1', password: 'admin1' },
+    { loginCode: 'admin2', password: 'admin2' }
+]
 
-// 偷懒之不许创建账号
-const showCreateAccountMsg = () => {
-    ElMessage.warning('暂时不开放账号创建')
+// 通用验证账号密码
+const checkUser = (loginCode, password, userList) => {
+    return userList.find(user => user.loginCode === loginCode && user.password === password)
 }
 
 // 偷懒之不允许忘记密码
@@ -88,48 +88,64 @@ const handlePhoneInput = (value) => {
     input.value = value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 8)
 }
 
-// 密码输入限制：只能输入数字和字母
+// 密码输入限制：最多16位（不限制字符类型）
 const handlePasswordInput = (value) => {
-    passput.value = value.replace(/[^a-zA-Z0-9]/g, '')
+    passput.value = value.slice(0, 16)  // 只限制长度，不限制字符
 }
 
-// 写在登录按钮里面的验证
+// 通用登录验证
 const validateLogin = () => {
-    // 登录编码验证（非空 + 长度不超过8位）
     if (!input.value || input.value.length === 0) {
         ElMessage.error('请输入登录编码')
         return false
     }
     
-    // 密码验证：8-16位数字和字母混合
-    if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,16}$/.test(passput.value)) {
-        ElMessage.error('密码需为8-16位数字和字母混合')
-        return false
-    }
-
-    // 验证账号密码是否正确
-    const user = checkUser(input.value, passput.value)
-    if (!user) {
-        ElMessage.error('登录编码或密码错误')
+    if (!passput.value || passput.value.length === 0) {
+        ElMessage.error('请输入密码')
         return false
     }
     
     return true
 }
 
-const handleLogin = () => {
+// 管理员登录
+const handleAdminLogin = () => {
     if (!validateLogin()) return
 
-    // 存储登录状态和登录编码
+    const user = checkUser(input.value, passput.value, adminUsers)
+    if (!user) {
+        ElMessage.error('登录编码或密码错误')
+        return false
+    }
+
+    // 存储登录状态和角色
     localStorage.setItem('isLoggedIn', 'true')
     localStorage.setItem('loginCode', input.value)
+    localStorage.setItem('userRole', 'admin')
 
-    ElMessage.success('登录成功！')
+    ElMessage.success('管理员登录成功！')
+    router.push('/')
+}
+
+// 护工登录
+const handleWorkerLogin = () => {
+    if (!validateLogin()) return
+
+    const user = checkUser(input.value, passput.value, workerUsers)
+    if (!user) {
+        ElMessage.error('登录编码或密码错误')
+        return false
+    }
+
+    // 存储登录状态和角色
+    localStorage.setItem('isLoggedIn', 'true')
+    localStorage.setItem('loginCode', input.value)
+    localStorage.setItem('userRole', 'worker')
+
+    ElMessage.success('健康管家登录成功！')
     router.push('/')
 }
 </script>
-
-
 
 <style scoped>
 /* 背景颜色淡紫色 */
@@ -262,11 +278,10 @@ const handleLogin = () => {
     width: 84%;
     position: absolute;
     top: 380px;
-    /* 离登录按钮 20px（登录按钮高约50px + 20px间距） */
     left: 55px;
 }
 
-/* 创建账号按钮 */
+/* 创建账号按钮（现在是护工登录按钮） */
 .crea-btn {
     position: absolute;
     top: 430px;

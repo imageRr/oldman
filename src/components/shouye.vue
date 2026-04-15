@@ -1,10 +1,10 @@
 <template>
   <div class="app-container">
-    <!-- 左侧导航栏 -->
+   
     <aside class="sidebar">
-      <!-- Logo 区域 -->
+     
       <div class="logo-container">
-        <!-- 如果没有图片，可以用文字代替，避免报错 -->
+        
         <h2 class="system-title">颐养管理系统</h2>
       </div>
 
@@ -19,27 +19,28 @@
             </div>
             <transition name="slide-down">
               <ul v-show="state.BedManage" class="submenu">
-                <li><router-link to="/bed-layout">床位示意图</router-link></li>
-                <li><router-link to="/bed-management">床位管理</router-link></li>
+                <li><router-link to="/bedlayout">床位示意图</router-link></li>
+                <li><router-link to="/bedmanagement">床位管理</router-link></li>
               </ul>
             </transition>
           </li>
 
           <!-- 客户管理 -->
           <li class="menu-item">
-            <div class="menu-title" @click="toggleMenu('CustomerManage')">
-              <span>客户管理</span>
-              <span :class="['arrow', { 'rotated': state.CustomerManage }]">▼</span>
-            </div>
-            <transition name="slide-down">
-              <ul v-show="state.CustomerManage" class="submenu">
-                <li><router-link to="/check-in">入住登记</router-link></li>
-                <li><router-link to="/check-out">外出登记</router-link></li>
-                <li><router-link to="/return-check">退住登记</router-link></li>
-              </ul>
-            </transition>
-          </li>
-
+        <div class="menu-title" @click="toggleMenu('CustomerManage')">
+          <span>客户管理</span>
+          <span :class="['arrow', { 'rotated': state.CustomerManage }]">▼</span>
+        </div>
+        <transition name="slide-down">
+          <ul v-show="state.CustomerManage" class="submenu">
+            <!-- 原有子项 -->
+            <li><router-link to="/customerlist">客户信息列表</router-link></li>
+            <li><router-link to="/CheckInDialog">入住登记</router-link></li>
+            <li><router-link to="/check-out">外出登记</router-link></li>
+            <li><router-link to="/return-check">退住登记</router-link></li>
+          </ul>
+        </transition>
+      </li>
           <!-- 护理管理 -->
           <li class="menu-item">
             <div class="menu-title" @click="toggleMenu('NursingManage')">
@@ -103,10 +104,11 @@
       </header>
       
       <div class="content-area">
-        <div class="empty-content">
+        <!-- <div class="empty-content"> -->
           <h3>欢迎使用东软颐养中心管理系统</h3>
           <p>请点击左侧菜单展开子项，并点击具体功能进入页面。</p >
-        </div>
+           <router-view />
+        <!-- </div> -->
       </div>
     </main>
   </div>
